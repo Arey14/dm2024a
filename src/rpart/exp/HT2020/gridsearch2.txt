@@ -1,0 +1,2 @@
+vmin_cp	vmax_depth	vmin_split	vmin_bucket	ganancia_promedio
+0.5	8	650	325	48166000
