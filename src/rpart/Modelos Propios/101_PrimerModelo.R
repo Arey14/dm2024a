@@ -12,8 +12,8 @@ filename = paste(gsub(":", "-", Sys.time()),"_file.csv",sep="")
 #setwd("Desktop/ITBA/Mineria de Datos/dm2024a/") # Establezco el Working Directory
 
 # cargo el dataset
-dataset <- fread("../../../datasets/dataset_pequeno.csv")
-
+dataset <- fread("../../../../datasets/dataset_pequeno.csv")
+dim(dataset)
 dtrain <- dataset[foto_mes == 202107] # defino donde voy a entrenar
 dapply <- dataset[foto_mes == 202109] # defino donde voy a aplicar el modelo
 
