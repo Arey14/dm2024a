@@ -75,7 +75,7 @@ Estrategia_B  <- function()
   #A la mitad mejor la hago tirar 70 tiros cada uno
   #La mediana siempre parte a un conjunto en dos partes de igual cantidad
   mediana  <- planilla_cazatalentos[ ids_juegan1, median(aciertos1) ]
-  ids_juegan2  <- planilla_cazatalentos[ ids_juegan1 ][ aciertos1 >= mediana, id ]
+  ids_juegan2  <- planilla_cazatalentos[ ids_juegan1 ][ aciertos1 >= z, id ]
 
   planilla_cazatalentos[ ids_juegan2,  tiros2 := 70 ]  #registro en la planilla que tiran 70 tiros
   resultado2  <- gimnasio_tirar( ids_juegan2, 70)

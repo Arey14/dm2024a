@@ -1,11 +1,4 @@
-# Este script esta dedicado a Cristian Salinas Talamilla, año 2024-04-09
-# La sorpresa es :
-#   * Canaritos
-#   * entrenar QUITANDO los BAJA+1 del dataset , lluvia de chanes
-
-
 # limpio la memoria
-
 rm(list = ls()) # remove all objects
 gc() # garbage collection
 
@@ -13,18 +6,15 @@ require("data.table")
 require("rpart")
 require("rpart.plot")
 
-setwd("~/Desktop/ITBA/Mineria de Datos/dm2024a/src/RepensandoOverfitting/Modelos Propios/") # establezco la carpeta donde voy a trabajar
+setwd("~/Desktop/ITBA/Mineria de Datos/dm2024a/src/RepensandoOverfitting/Modelos Propios") # establezco la carpeta donde voy a trabajar
 
 # cargo el dataset
 dataset <- fread( "~/Desktop/ITBA/Mineria de Datos/datasets/dataset_pequeno.csv")
 
-# quito los BAJA+1 del dataset, Locura Total
-dataset <- dataset[ clase_ternaria != "BAJA+1" ]
-
 dir.create("./exp/", showWarnings = FALSE)
-dir.create("./exp/CN4190/", showWarnings = FALSE)
+dir.create("./exp/CN4110/", showWarnings = FALSE)
 # Establezco el Working Directory DEL EXPERIMENTO
-setwd("./exp/CN4190/")
+setwd("./exp/CN4110/")
 
 # uso esta semilla para los canaritos
 set.seed(102191)
@@ -33,13 +23,12 @@ set.seed(102191)
 for( i in 1:155 ) dataset[ , paste0("canarito", i ) :=  runif( nrow(dataset)) ]
 
 dtrain <- dataset[foto_mes == 202107]
-
-# agrego fisicamente 20 veces los BAJA+2
-dbuenos <- copy(dtrain[ clase_ternaria=="BAJA+2" ])
-for( i in 1:20 ) dtrain <- rbindlist( list( dtrain, dbuenos) )
-
-
 dapply <- dataset[foto_mes == 202109]
+
+dtrain[, clase_binaria2 := ifelse( clase_ternaria=="CONTINUA", "NEG", "POS" ) ]
+dtrain[, clase_ternaria := NULL ]
+
+pesos <- dtrain[ , ifelse( clase_binaria2=="POS", 5.0, 1.0 ) ]
 
 # Dejo crecer el arbol sin ninguna limitacion
 # sin limite de altura ( 30 es el maximo que permite rpart )
@@ -47,14 +36,15 @@ dapply <- dataset[foto_mes == 202109]
 # sin limite de minbukcet( 1 es el minimo natural )
 # los canaritos me protegeran
 modelo_original <- rpart(
-    formula = "clase_ternaria ~ .",
+    formula = "clase_binaria2 ~ .",
     data = dtrain,
     model = TRUE,
     xval = 0,
     cp = -1,
     minsplit = 2, # dejo que crezca y corte todo lo que quiera
     minbucket = 1,
-    maxdepth = 20
+    maxdepth = 30,
+    weights = pesos
 )
 
 
@@ -68,28 +58,24 @@ modelo_original$frame[
 
 modelo_pruned <- prune(modelo_original, -666)
 
-prediccion <- predict(modelo_pruned, dapply, type = "prob")[, "BAJA+2"]
+prediccion <- predict(modelo_pruned, dapply, type = "prob")[, "POS"]
 
 tb_pred <- dapply[ , list(numero_de_cliente) ]
 tb_pred[, prob := prediccion ]
 
-tb_pred[, azar := runif( nrow(tb_pred) ) ]
-setorder( tb_pred, -prob, azar )
-
+setorder( tb_pred, -prob )
 tb_pred[ , Predicted := 0L ]
-tb_pred[ 1:12000, Predicted := 1L ]
-
+tb_pred[ 1:11000, Predicted := 1L ]
 
 fwrite( tb_pred[, list(numero_de_cliente, Predicted)],
-        file= "Cristian_sorprendido_001.csv",
+        file= "stopping_at_canaritos.csv",
         sep = ",")
 
 
-pdf(file = "Cristian_sorprendido.pdf", width = 28, height = 4)
+pdf(file = "stopping_at_canaritos.pdf", width = 28, height = 4)
 prp(modelo_pruned,
     extra = 101, digits = -5,
     branch = 1, type = 4, varlen = 0, faclen = 0
 )
 
 dev.off()
-

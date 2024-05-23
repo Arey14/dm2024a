@@ -76,7 +76,7 @@ Estrategia_A  <- function()
   #Ronda 2 -------------------------------------------------------
   #A la mitad mejor la hago tirar 400 tiros cada uno
   #La mediana siempre parte a un conjunto en dos partes de igual cantidad
-  mediana  <- planilla_cazatalentos[ ids_juegan1, median(aciertos1) ]
+  mediana  <- planilla_cazatalentos[ ids_juegan1, max(aciertos1)-(1*sd(aciertos1)) ]
   ids_juegan2  <- planilla_cazatalentos[ ids_juegan1 ][ aciertos1 >= mediana, id ]
 
   planilla_cazatalentos[ ids_juegan2,  tiros2 := 400 ]  #registro en la planilla que tiran 400 tiros
