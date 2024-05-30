@@ -35,8 +35,8 @@ PARAM <- list()
 
 PARAM$experimento <- "HT4510"
 
-PARAM$input$dataset <- "~/Desktop/ITBA/Mineria de Datos/datasets/dataset_pequeno.csv"
-PARAM$input$training <- c(202107) # los meses en los que vamos a entrenar
+PARAM$input$dataset <- "~/Desktop/ITBA/Mineria de Datos/datasets/competencia_2024.csv.gz"
+PARAM$input$training <- c(201901, 201902, 201903, 201904, 201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 202001, 202002, 202003, 202004, 202005, 202006, 202007, 202008, 202009, 202010, 202011, 202012, 202101, 202102, 202103, 202104, 202105, 202106, 202107, 202108) # los meses en los que vamos a entrenar
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
 # undersampling de 1.0  implica tomar TODOS los datos

@@ -1,0 +1,31 @@
+```{r}
+# Load necessary library
+library(Boruta)
+library(readr)
+# Example dataset: Load your data here
+data <- read_csv("~/Desktop/ITBA/Mineria de Datos/datasets/dataset_pequeno.csv")
+
+# For demonstration, we'll use the iris dataset
+#data <- iris
+target <- "clase_ternaria"
+
+# Run Boruta with specific parameters
+boruta_output <- Boruta(
+  as.formula(paste(target, "~ .")),  # Specify the formula
+  data = data,                      # Provide the dataset
+  doTrace = 2,                      # Verbose output for progress
+  maxRuns = 500,                    # Increase the maximum number of iterations
+  pValue = 0.05,                    # Set a different significance level
+  mcAdj = FALSE                     # Disable multiple comparisons adjustment
+)
+
+# Get the decision results for all variables
+boruta_decisions <- boruta_output$finalDecision
+
+# Filter the variables classified as 'Rejected' (unimportant)
+unimportant_vars <- names(boruta_decisions)[boruta_decisions == "Rejected"]
+
+# Print the unimportant variables
+print(unimportant_vars)
+
+```
