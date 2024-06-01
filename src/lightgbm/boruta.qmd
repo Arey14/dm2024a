@@ -1,23 +1,35 @@
 ```{r}
-# Load necessary library
+# Install and load necessary packages
+library(data.table)
 library(Boruta)
-library(readr)
-# Example dataset: Load your data here
-data <- read_csv("~/Desktop/ITBA/Mineria de Datos/datasets/dataset_pequeno.csv")
+library(mice)
 
-# For demonstration, we'll use the iris dataset
+# Load your dataset
+ data <- fread("~/Desktop/ITBA/Mineria de Datos/datasets/dataset_pequeno.csv")
+
+# For demonstration, we'll use the iris dataset and introduce some NAs
 #data <- iris
-target <- "clase_ternaria"
+#data[sample(1:nrow(data), 20), sample(1:ncol(data), 2)] <- NA  # Introduce NAs randomly
 
-# Run Boruta with specific parameters
-boruta_output <- Boruta(
-  as.formula(paste(target, "~ .")),  # Specify the formula
-  data = data,                      # Provide the dataset
-  doTrace = 2,                      # Verbose output for progress
-  maxRuns = 500,                    # Increase the maximum number of iterations
-  pValue = 0.05,                    # Set a different significance level
-  mcAdj = FALSE                     # Disable multiple comparisons adjustment
-)
+# Step 1: Identify missing data
+missing_data_summary <- sapply(data, function(x) sum(is.na(x)))
+print("Missing data summary:")
+print(missing_data_summary)
+
+# Step 2: Handle missing data (choose one approach)
+# Approach 1: Remove rows with missing values
+ data_clean <- na.omit(data)
+
+# Approach 2: Remove columns with missing values
+# data_clean <- data[, colSums(is.na(data)) == 0]
+
+# Approach 3: Impute missing values (using mean imputation here)
+#imputed_data <- mice(data, m = 1, method = 'mean', maxit = 50, seed = 123)
+#data_clean <- complete(imputed_data)
+
+# Step 3: Run Boruta with cleaned data
+target <- "clase_ternaria"
+boruta_output <- Boruta(clase_ternaria ~ ., data = data_clean, doTrace = 2, maxRuns = 100)
 
 # Get the decision results for all variables
 boruta_decisions <- boruta_output$finalDecision
@@ -26,6 +38,7 @@ boruta_decisions <- boruta_output$finalDecision
 unimportant_vars <- names(boruta_decisions)[boruta_decisions == "Rejected"]
 
 # Print the unimportant variables
+print("Unimportant variables:")
 print(unimportant_vars)
 
 ```

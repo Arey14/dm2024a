@@ -245,6 +245,33 @@ CN_canaritos_asesinos_base <- function( pinputexps, ratio, desvio)
   return( exp_correr_script( param_local ) ) # linea fija
 }
 #------------------------------------------------------------------------------
+# Boruta Feature Selection   Baseline
+#  utiliza semilla
+
+# Boruta Feature Selection   Baseline
+#  utiliza semilla y p-value
+
+CN_boruta_base <- function(pinputexps, seed, p_value) {
+  if (-1 == (param_local <- exp_init())$resultado) return(0) # línea fija
+  
+  param_local$meta$script <- "/src/workflow-01/z562_CN_boruta.r"
+  
+  # Parámetros de un LightGBM que se genera para estimar la column importance
+  param_local$train$clase01_valor1 <- c("BAJA+2", "BAJA+1")
+  param_local$train$positivos <- c("BAJA+2")
+  param_local$train$training <- c(202101, 202102, 202103)
+  param_local$train$validation <- c(202105)
+  param_local$train$undersampling <- 0.1
+  param_local$train$gan1 <- 117000
+  param_local$train$gan0 <- -3000
+  
+  # Parámetros específicos para Boruta
+  param_local$Boruta$seed <- seed
+  param_local$Boruta$p_value <- p_value
+  
+  return(exp_correr_script(param_local)) # línea fija
+}
+#------------------------------------------------------------------------------
 # Training Strategy  Baseline
 #   y solo incluyo en el dataset al 20% de los CONTINUA
 #  azaroso, utiliza semilla
@@ -387,12 +414,13 @@ wf_sept <- function( pnombrewf )
 
   DT_incorporar_dataset_competencia2024()
   #CA_catastrophe_base( metodo="MachineLearning")
-  FEintra_base()
+  #FEintra_base()
   #DR_drifting_base(metodo="rank_cero_fijo")
   #FEhist_base()
   #FErf_attributes_base()
   #CN_canaritos_asesinos_base(ratio=0.2, desvio=4.0)
-
+  CN_boruta_base()
+  
   ts9 <- TS_strategy_base9()
   ht <- HT_tuning_base()
   
